@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import Tabs from "@material-ui/core/Tabs";
@@ -7,6 +7,7 @@ import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import { Container, CssBaseline } from "@material-ui/core";
 import Header from "../../Components/Header/Header";
+import CardWrapper from "../../Components/CardWrapper/CardWrapper";
 
 import "./HomePage.scss";
 
@@ -60,13 +61,33 @@ export default function VerticalTabs() {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
 
+  const [searchInput, setsearchInput] = useState("");
+  const [searchMoviesData, setsearchMoviesData] = useState([]);
+  const [favoriteMovies, setfavoriteMovies] = useState([]);
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
   };
 
+  useEffect(() => {
+    searchMovies();
+  }, [searchInput]);
+
+  const searchMovies = async (event) => {
+    await fetch(
+      `http://www.omdbapi.com/?apikey=d3e883bb&s=${searchInput}*&page=1`
+    )
+      .then((success) => success.json())
+      .then((movies) => {
+        console.log(movies.Search);
+        setsearchMoviesData(movies.Search);
+      })
+      .catch((error) => console.log(error));
+  };
+
   return (
     <div className="homepage">
-      <Header />
+      <Header setsearchInput={setsearchInput} />
       <CssBaseline />
       <Container maxWidth="lg" className={classes.root}>
         <Tabs
@@ -77,8 +98,8 @@ export default function VerticalTabs() {
           aria-label="Vertical tabs example"
           className={classes.tabs}
         >
-          <Tab label="Item One" {...a11yProps(0)} />
-          <Tab label="Item Two" {...a11yProps(1)} />
+          <Tab label="Movies" {...a11yProps(0)} />
+          <Tab label="Favorite Movies" {...a11yProps(1)} />
           <Tab label="Item Three" {...a11yProps(2)} />
           <Tab label="Item Four" {...a11yProps(3)} />
           <Tab label="Item Five" {...a11yProps(4)} />
@@ -86,10 +107,30 @@ export default function VerticalTabs() {
           <Tab label="Item Seven" {...a11yProps(6)} />
         </Tabs>
         <TabPanel value={value} index={0}>
-          Movie
+          {searchMoviesData &&
+            searchMoviesData.map((movie, index) => {
+              return (
+                <CardWrapper
+                  key={index}
+                  movie={movie}
+                  setfavoriteMovies={setfavoriteMovies}
+                  favoriteMovies={favoriteMovies}
+                />
+              );
+            })}
         </TabPanel>
         <TabPanel value={value} index={1}>
-          Item Two
+          {favoriteMovies &&
+            favoriteMovies.map((movie, index) => {
+              return (
+                <CardWrapper
+                  key={index}
+                  movie={movie}
+                  setfavoriteMovies={setfavoriteMovies}
+                  favoriteMovies={favoriteMovies}
+                />
+              );
+            })}
         </TabPanel>
         <TabPanel value={value} index={2}>
           Item Three

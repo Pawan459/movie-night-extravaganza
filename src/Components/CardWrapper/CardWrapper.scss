@@ -1,0 +1,24 @@
+.card-wrapper {
+  position: relative;
+
+  .overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba($color: #000000, $alpha: 0.8);
+    display: none;
+
+    button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+  }
+}
+
+.card-wrapper:hover {
+  .overlay {
+    display: block;
+  }
+}
