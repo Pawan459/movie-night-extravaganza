@@ -1,6 +1,12 @@
 .card-wrapper {
   position: relative;
 
+  &:hover {
+    .overlay {
+      display: block;
+    }
+  }
+
   .overlay {
     position: absolute;
     width: 100%;
@@ -14,11 +20,5 @@
       left: 50%;
       transform: translate(-50%, -50%);
     }
-  }
-}
-
-.card-wrapper:hover {
-  .overlay {
-    display: block;
   }
 }
