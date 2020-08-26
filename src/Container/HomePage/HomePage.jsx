@@ -3,11 +3,11 @@ import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/core/styles";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
-import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
-import { Container, CssBaseline } from "@material-ui/core";
+import { Container, CssBaseline, Button } from "@material-ui/core";
 import Header from "../../Components/Header/Header";
 import CardWrapper from "../../Components/CardWrapper/CardWrapper";
+import NavigateNextRoundedIcon from "@material-ui/icons/NavigateNextRounded";
 
 import "./HomePage.scss";
 
@@ -18,15 +18,11 @@ function TabPanel(props) {
     <div
       role="tabpanel"
       hidden={value !== index}
-      id={`vertical-tabpanel-${index}`}
-      aria-labelledby={`vertical-tab-${index}`}
+      id={`scrollable-auto-tabpanel-${index}`}
+      aria-labelledby={`scrollable-auto-tab-${index}`}
       {...other}
     >
-      {value === index && (
-        <Box p={3}>
-          <Typography>{children}</Typography>
-        </Box>
-      )}
+      {value === index && <Box className="customCards">{children}</Box>}
     </div>
   );
 }
@@ -39,31 +35,31 @@ TabPanel.propTypes = {
 
 function a11yProps(index) {
   return {
-    id: `vertical-tab-${index}`,
-    "aria-controls": `vertical-tabpanel-${index}`,
+    id: `scrollable-auto-tab-${index}`,
+    "aria-controls": `scrollable-auto-tabpanel-${index}`,
   };
 }
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
+    width: "100%",
     backgroundColor: theme.palette.background.paper,
-    display: "flex",
-    height: "100%",
-    alignItems: "center",
   },
-  tabs: {
-    borderRight: `1px solid ${theme.palette.divider}`,
+  button: {
+    alignSelf: "center",
+    maxHeight: 60,
   },
 }));
 
-export default function VerticalTabs() {
+export default function HomePage() {
   const classes = useStyles();
   const [value, setValue] = React.useState(0);
 
   const [searchInput, setsearchInput] = useState("");
   const [searchMoviesData, setsearchMoviesData] = useState([]);
-  const [favoriteMovies, setfavoriteMovies] = useState([]);
+  const [favouriteMovies, setfavouriteMovies] = useState([]);
+  const [currPage, setCurrPage] = useState(1);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -73,9 +69,19 @@ export default function VerticalTabs() {
     searchMovies();
   }, [searchInput]);
 
+  const handleSearch = (event, inputValue) => {
+    setsearchInput(inputValue);
+    setCurrPage(1);
+  };
+
+  const handleNextPage = (event) => {
+    setCurrPage(currPage + 1);
+    searchMovies();
+  };
+
   const searchMovies = async (event) => {
     await fetch(
-      `http://www.omdbapi.com/?apikey=d3e883bb&s=${searchInput}*&page=1`
+      `http://www.omdbapi.com/?apikey=d3e883bb&s=${searchInput}*&page=${currPage}`
     )
       .then((success) => success.json())
       .then((movies) => {
@@ -85,67 +91,68 @@ export default function VerticalTabs() {
       .catch((error) => console.log(error));
   };
 
+  const renderSearchMovies = () => {
+    if (!searchMoviesData) return null;
+    return searchMoviesData.map((movie, index) => {
+      return (
+        <CardWrapper
+          key={index}
+          movie={movie}
+          setfavouriteMovies={setfavouriteMovies}
+          favouriteMovies={favouriteMovies}
+        />
+      );
+    });
+  };
+
+  const renderFavouriteContent = () => {
+    if (!favouriteMovies) return null;
+    return favouriteMovies.map((movie, index) => {
+      return (
+        <CardWrapper
+          key={index}
+          movie={movie}
+          setfavouriteMovies={setfavouriteMovies}
+          favouriteMovies={favouriteMovies}
+        />
+      );
+    });
+  };
+
   return (
     <div className="homepage">
-      <Header setsearchInput={setsearchInput} />
+      <Header setsearchInput={handleSearch} />
       <CssBaseline />
       <Container maxWidth="lg" className={classes.root}>
         <Tabs
-          orientation="vertical"
-          variant="scrollable"
           value={value}
           onChange={handleChange}
-          aria-label="Vertical tabs example"
-          className={classes.tabs}
+          indicatorColor="primary"
+          textColor="primary"
+          variant="scrollable"
+          scrollButtons="auto"
+          aria-label="scrollable auto tabs example"
         >
           <Tab label="Movies" {...a11yProps(0)} />
-          <Tab label="Favorite Movies" {...a11yProps(1)} />
-          <Tab label="Item Three" {...a11yProps(2)} />
-          <Tab label="Item Four" {...a11yProps(3)} />
-          <Tab label="Item Five" {...a11yProps(4)} />
-          <Tab label="Item Six" {...a11yProps(5)} />
-          <Tab label="Item Seven" {...a11yProps(6)} />
+          <Tab label="Favourite Movies" {...a11yProps(1)} />
         </Tabs>
         <TabPanel value={value} index={0}>
-          {searchMoviesData &&
-            searchMoviesData.map((movie, index) => {
-              return (
-                <CardWrapper
-                  key={index}
-                  movie={movie}
-                  setfavoriteMovies={setfavoriteMovies}
-                  favoriteMovies={favoriteMovies}
-                />
-              );
-            })}
+          {renderSearchMovies()}
+          {searchMoviesData && searchMoviesData.length > 9 && (
+            <Button
+              variant="contained"
+              size="small"
+              color="primary"
+              className={classes.button}
+              startIcon={<NavigateNextRoundedIcon />}
+              onClick={handleNextPage}
+            >
+              Next Page
+            </Button>
+          )}
         </TabPanel>
         <TabPanel value={value} index={1}>
-          {favoriteMovies &&
-            favoriteMovies.map((movie, index) => {
-              return (
-                <CardWrapper
-                  key={index}
-                  movie={movie}
-                  setfavoriteMovies={setfavoriteMovies}
-                  favoriteMovies={favoriteMovies}
-                />
-              );
-            })}
-        </TabPanel>
-        <TabPanel value={value} index={2}>
-          Item Three
-        </TabPanel>
-        <TabPanel value={value} index={3}>
-          Item Four
-        </TabPanel>
-        <TabPanel value={value} index={4}>
-          Item Five
-        </TabPanel>
-        <TabPanel value={value} index={5}>
-          Item Six
-        </TabPanel>
-        <TabPanel value={value} index={6}>
-          Item Seven
+          {renderFavouriteContent()}
         </TabPanel>
       </Container>
     </div>

@@ -3,4 +3,10 @@
     align-content: center;
     justify-content: center;
     flex-direction: column;
+
+    .customCards {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+    }
 }
