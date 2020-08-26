@@ -65,7 +65,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Header() {
+export default function Header(props) {
+  const { setsearchInput } = props;
   const classes = useStyles();
 
   return (
@@ -89,6 +90,7 @@ export default function Header() {
             </div>
             <InputBase
               placeholder="Search…"
+              onChange={(event) => setsearchInput(event.target.value)}
               classes={{
                 root: classes.inputRoot,
                 input: classes.inputInput,
